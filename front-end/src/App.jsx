@@ -1,27 +1,21 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
 import Kanban from './pages/Kanban';
-import Medications from './pages/Medications';
-import History from './pages/History';
-import Patients from './pages/Patients';
-import PatientDetail from './pages/PatientDetail';
 
-function App() {
+export default function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="kanban" element={<Kanban />} />
-          <Route path="medications" element={<Medications />} />
-          <Route path="history" element={<History />} />
-          <Route path="patients" element={<Patients />} />
-          <Route path="patients/:id" element={<PatientDetail />} />
-        </Route>
+        {/* Rota de Login */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* Rota do Kanban */}
+        <Route path="/kanban" element={<Kanban />} />
+        
+        {/* Qualquer rota desconhecida ou a raiz redireciona para o login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
-
-export default App;

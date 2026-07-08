@@ -1,182 +1,188 @@
-import { useState, useEffect } from 'react';
-import Card from '../components/Card';
-import { getChecklist, updateDoseStatus } from '../services/checklist';
-import { getPatients } from '../services/patients';
-import { CheckCircle2, Circle, Clock, UserRound } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LogOut, Plus, Calendar, Pill, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
-const Kanban = () => {
-  const [checklist, setChecklist] = useState([]);
-  const [patients, setPatients] = useState([]);
-  const [selectedPatientId, setSelectedPatientId] = useState('');
-  const [loading, setLoading] = useState(true);
-  
-  // Simulating today's date for the query, back-end expects YYYY-MM-DD
-  const today = new Date().toISOString().split('T')[0];
+export default function Kanban() {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    loadPatients();
-  }, []);
-
-  useEffect(() => {
-    if (selectedPatientId) {
-      loadChecklist();
-    } else {
-      setChecklist([]);
-      setLoading(false);
-    }
-  }, [selectedPatientId]);
-
-  const loadPatients = async () => {
-    try {
-      const data = await getPatients();
-      setPatients(data);
-      if (data.length > 0) {
-        setSelectedPatientId(String(data[0].id));
-      } else {
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error('Failed to load patients', error);
-      setLoading(false);
-    }
+  const handleLogout = () => {
+    navigate('/login');
   };
 
-  const loadChecklist = async () => {
-    setLoading(true);
-    try {
-      const data = await getChecklist(today, selectedPatientId);
-      setChecklist(data);
-    } catch (error) {
-      console.error('Failed to load checklist', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleToggleStatus = async (id, currentStatus) => {
-    try {
-      const newStatus = currentStatus === 'Tomado' ? 'Pendente' : 'Tomado';
-      await updateDoseStatus(id, newStatus);
-      // Optimistic update
-      setChecklist(prev => 
-        prev.map(item => item.id === id ? { ...item, status: newStatus } : item)
-      );
-    } catch (error) {
-      console.error('Failed to update status', error);
-    }
-  };
-
-  const timeSlots = [
-    { key: 'morning', label: 'Manhã (06:00 - 12:00)' },
-    { key: 'afternoon', label: 'Tarde (12:00 - 18:00)' },
-    { key: 'night', label: 'Noite (18:00 - 00:00)' },
+  const tasks = [
+    { 
+      id: '1', 
+      name: 'Paracetamol 500mg', 
+      desc: 'Lote A-203. Verificar estoque mínimo na farmácia universitária.', 
+      status: 'todo', 
+      priority: 'Média', 
+      date: '08/07/2026',
+      badgeColor: 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+    },
+    { 
+      id: '2', 
+      name: 'Amoxicilina 250mg', 
+      desc: 'Solicitar reabastecimento de emergência junto ao fornecedor credenciado.', 
+      status: 'progress', 
+      priority: 'Alta', 
+      date: '06/07/2026',
+      badgeColor: 'bg-red-500/10 border-red-500/20 text-red-400'
+    },
+    { 
+      id: '3', 
+      name: 'Ibuprofeno 400mg', 
+      desc: 'Estoque devidamente regularizado. Arquivar nota fiscal de entrada.', 
+      status: 'done', 
+      priority: 'Baixa', 
+      date: '04/07/2026',
+      badgeColor: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+    },
   ];
 
-  // Helper to categorize times
-  const getSlot = (timeString) => {
-    if (!timeString) return 'morning';
-    const hour = parseInt(timeString.split(':')[0], 10);
-    if (hour >= 6 && hour < 12) return 'morning';
-    if (hour >= 12 && hour < 18) return 'afternoon';
-    return 'night';
-  };
-
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Checklist Diário</h2>
-          <p className="text-gray-500 mt-1">Acompanhe as doses agendadas para hoje ({new Date(today + 'T00:00:00').toLocaleDateString('pt-BR')}).</p>
+    <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col">
+      {/* Header do Kanban */}
+      <header className="border-b border-slate-800/80 bg-[#0d1527]/50 backdrop-blur-md px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+            <Pill className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-white">MediFlow</h1>
+            <span className="text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold">
+              IFRS Campus
+            </span>
+          </div>
         </div>
         
-        {/* Patient selector */}
-        <div className="flex items-center gap-2">
-          <UserRound size={18} className="text-gray-400" />
-          <select
-            value={selectedPatientId}
-            onChange={(e) => setSelectedPatientId(e.target.value)}
-            disabled={patients.length === 0}
-            className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all bg-white text-sm"
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex flex-col items-end">
+            <span className="text-sm font-medium text-white">Farmacêutico Chefe</span>
+            <span className="text-xs text-slate-400">admin@ifrs.edu.br</span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-red-400 text-sm font-medium transition-colors cursor-pointer"
           >
-            {patients.length === 0 ? (
-              <option value="">Nenhum paciente cadastrado</option>
-            ) : (
-              patients.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))
-            )}
-          </select>
+            <LogOut className="w-4 h-4" />
+            <span>Sair</span>
+          </button>
         </div>
-      </div>
+      </header>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+      {/* Conteúdo Principal */}
+      <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
+        {/* Título e Ação Rápida */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-white tracking-tight">Painel de Medicamentos</h2>
+            <p className="text-sm text-slate-400 mt-1">Monitore e controle a distribuição de insumos em tempo real.</p>
+          </div>
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-emerald-400 text-slate-950 rounded-xl text-sm font-semibold hover:bg-emerald-300 transition-all shadow-[0_4px_20px_-4px_rgba(52,211,153,0.3)] cursor-pointer">
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>Novo Medicamento</span>
+          </button>
         </div>
-      ) : patients.length === 0 ? (
-        <Card>
-          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-            <UserRound size={48} className="mb-4 opacity-40" />
-            <p className="text-lg font-medium text-gray-500">Nenhum paciente cadastrado</p>
-            <p className="text-sm text-gray-400 mt-1">Cadastre um paciente e seus medicamentos para ver o checklist.</p>
-          </div>
-        </Card>
-      ) : checklist.length === 0 ? (
-        <Card>
-          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-            <CheckCircle2 size={48} className="mb-4 opacity-40" />
-            <p className="text-lg font-medium text-gray-500">Nenhuma dose agendada para hoje.</p>
-          </div>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {timeSlots.map(slot => {
-            const slotItems = checklist.filter(item => getSlot(item.time) === slot.key);
-            return (
-              <div key={slot.key} className="space-y-4">
-                <h3 className="font-bold text-gray-700 flex items-center gap-2">
-                  <Clock size={18} className="text-primary" />
-                  {slot.label}
-                </h3>
-                {slotItems.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">Nenhum medicamento</p>
-                ) : (
-                  slotItems.map(item => (
-                    <Card 
-                      key={item.id} 
-                      className={`cursor-pointer transition-all hover:shadow-md ${item.status === 'Tomado' ? 'bg-green-50/50 border-green-200' : ''}`}
-                      onClick={() => handleToggleStatus(item.id, item.status)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className={`font-bold ${item.status === 'Tomado' ? 'text-green-700 line-through' : 'text-gray-900'}`}>
-                            {item.Medication?.name || 'Medicamento'}
-                          </p>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Paciente: {item.Patient?.name || 'N/A'}
-                          </p>
-                          <p className="text-xs font-medium text-primary mt-2">
-                            {item.time} • Dose: {item.Medication?.dosage}
-                          </p>
-                        </div>
-                        <div>
-                          {item.status === 'Tomado' ? (
-                            <CheckCircle2 className="text-green-500" size={24} />
-                          ) : (
-                            <Circle className="text-gray-300" size={24} />
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  ))
-                )}
+
+        {/* Quadro Kanban */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Coluna A Fazer */}
+          <div className="flex flex-col min-h-[500px]">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-slate-400" />
+                <h3 className="font-bold text-white">A Fazer</h3>
               </div>
-            );
-          })}
+              <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-semibold">1</span>
+            </div>
+            <div className="flex-1 space-y-4">
+              {tasks.filter(t => t.status === 'todo').map(task => (
+                <div key={task.id} className="glass-panel p-5 rounded-xl border border-slate-800 hover:border-slate-700 transition-all shadow-md group">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${task.badgeColor}`}>
+                      Prioridade {task.priority}
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-white text-base group-hover:text-emerald-400 transition-colors mb-2">
+                    {task.name}
+                  </h4>
+                  <p className="text-sm text-slate-400 line-clamp-2 mb-4 leading-relaxed">
+                    {task.desc}
+                  </p>
+                  <div className="flex items-center text-slate-500 text-xs gap-1.5 border-t border-slate-800/80 pt-3">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Limite: {task.date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Coluna Em Progresso */}
+          <div className="flex flex-col min-h-[500px]">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-emerald-400" />
+                <h3 className="font-bold text-white">Em Progresso</h3>
+              </div>
+              <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold">1</span>
+            </div>
+            <div className="flex-1 space-y-4">
+              {tasks.filter(t => t.status === 'progress').map(task => (
+                <div key={task.id} className="glass-panel p-5 rounded-xl border border-slate-800 hover:border-slate-700 transition-all shadow-md group">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${task.badgeColor}`}>
+                      Prioridade {task.priority}
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-white text-base group-hover:text-emerald-400 transition-colors mb-2">
+                    {task.name}
+                  </h4>
+                  <p className="text-sm text-slate-400 line-clamp-2 mb-4 leading-relaxed">
+                    {task.desc}
+                  </p>
+                  <div className="flex items-center text-slate-500 text-xs gap-1.5 border-t border-slate-800/80 pt-3">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Limite: {task.date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Coluna Concluído */}
+          <div className="flex flex-col min-h-[500px]">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <h3 className="font-bold text-white">Concluído</h3>
+              </div>
+              <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold">1</span>
+            </div>
+            <div className="flex-1 space-y-4">
+              {tasks.filter(t => t.status === 'done').map(task => (
+                <div key={task.id} className="glass-panel p-5 rounded-xl border border-slate-800 hover:border-slate-700 transition-all shadow-md group">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${task.badgeColor}`}>
+                      Prioridade {task.priority}
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-slate-300 text-base line-through group-hover:text-emerald-400 transition-colors mb-2">
+                    {task.name}
+                  </h4>
+                  <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
+                    {task.desc}
+                  </p>
+                  <div className="flex items-center text-slate-500 text-xs gap-1.5 border-t border-slate-800/80 pt-3">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Limite: {task.date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      )}
+      </main>
     </div>
   );
-};
-
-export default Kanban;
+}

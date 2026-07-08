@@ -1,30 +1,16 @@
-# MedControl - Frontend
+# React + Vite
 
-Este é o frontend da aplicação MedControl, desenvolvido para permitir que cuidadores domésticos gerenciem medicamentos, pacientes e estoques através de uma interface simples, amigável e moderna.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Tecnologias
+Currently, two official plugins are available:
 
-- **Framework**: React.js
-- **Build Tool**: Vite
-- **Estilização**: TailwindCSS + CSS Puro (variáveis e temas customizados)
-- **Roteamento**: React Router
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Como iniciar o ambiente de desenvolvimento
+## React Compiler
 
-1. Certifique-se de que a API (Backend) esteja rodando na porta 3000 (veja o README na raiz do projeto).
-2. Instale as dependências na pasta `front-end`:
-   ```bash
-   npm install
-   ```
-3. Inicie o servidor Vite:
-   ```bash
-   npm run dev
-   ```
-4. Acesse a aplicação no seu navegador: `http://localhost:5173`
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Estrutura de Pastas
+## Expanding the Oxlint configuration
 
-- `/src/components`: Componentes reutilizáveis de UI (ex: Sidebar, Navbar).
-- `/src/pages`: Páginas da aplicação.
-- `/src/services`: Integração com a API do backend (fetch).
-- `/src/index.css`: Estilos globais e tokens CSS da aplicação.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
