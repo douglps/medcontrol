@@ -1,40 +1,50 @@
-# MedControl — Backend
+# MedControl
 
-## Sobre o projeto
+MedControl é uma aplicação de controle de medicamentos para cuidadores domésticos. Permite cadastrar pacientes, seus medicamentos e horários de tomada, gerando automaticamente um checklist diário (Kanban) de doses pendentes, tomadas e puladas. Também controla o estoque de medicamentos (com alerta de reposição e previsão de duração) e mantém um histórico de doses com cálculo de aderência ao tratamento.
 
-MedControl é uma aplicação de controle de medicamentos para cuidadores domésticos. Permite cadastrar pacientes, seus medicamentos e horários de tomada, gerando automaticamente um checklist diário (Kanban) de doses pendentes, tomadas e puladas. Também controla o estoque de medicamentos (com alerta de reposição e previsão de duração) e mantém um histórico de doses com cálculo de aderência ao tratamento por medicamento e período.
+Este repositório contém a aplicação full-stack completa:
+- **API (Backend)**: Desenvolvido com Node.js, Express e PostgreSQL.
+- **Interface (Frontend)**: Desenvolvido com React, Vite e TailwindCSS.
 
-É uma aplicação single-user, sem autenticação, voltada para uso doméstico/local — a prioridade é a simplicidade do registro (um clique por dose) em vez da completude de dados clínicos.
+## Documentação
 
-Este repositório/pasta contém apenas a **API (backend)** dessa aplicação.
+Para a proposta técnica original, arquitetura e modelagem de dados, consulte a pasta de documentação:
+- [Proposta Técnica e Arquitetura](./docs/medcontrol-proposta.md)
 
-## Stack
+## Estrutura do Projeto
 
-- Node.js (ESM — `"type": "module"`)
-- Express 5
-- Sequelize 6 (ORM)
-- PostgreSQL (via `pg` / `pg-hstore`)
+O código do Frontend está isolado em sua própria pasta, enquanto o Backend reside no diretório raiz (temporariamente) ou utiliza a estrutura base.
 
-## Pré-requisitos
+```text
+/
+├── front-end/           # Aplicação React (Vite)
+├── src/                 # Código-fonte da API (Backend Node.js)
+├── docs/                # Documentação técnica e especificações
+├── package.json         # Dependências do Backend
+└── README.md            # Este arquivo
+```
 
-- Node.js 18 ou superior (usa `node --watch`)
-- Docker (para subir o PostgreSQL) **ou** uma instância PostgreSQL própria já configurada
+## Como Rodar a Aplicação
 
-## Como rodar
+### 1. Backend (API)
 
-1. Instalar as dependências:
+A API roda na porta `3000` (ou conforme configurado no `.env`).
+
+**Pré-requisitos**:
+- Node.js 18+
+- PostgreSQL (pode usar Docker)
+
+**Passo a passo**:
+1. Instale as dependências na raiz do projeto:
    ```bash
-   cd backend
    npm install
    ```
-
-2. Criar o arquivo de variáveis de ambiente a partir do exemplo:
+2. Configure as variáveis de ambiente:
+   Crie um arquivo `.env` baseado no `.env.example`:
    ```bash
    cp .env.example .env
    ```
-   Ajuste os valores se necessário (veja a tabela de variáveis abaixo).
-
-3. Subir um PostgreSQL local. Se você não tiver o `docker-compose.yml` do monorepo (por exemplo, se recebeu apenas esta pasta `backend/`), pode subir um container equivalente diretamente:
+3. Suba um banco PostgreSQL local. Exemplo com Docker:
    ```bash
    docker run -d --name medcontrol-db \
      -e POSTGRES_DB=medcontrol \
@@ -43,49 +53,27 @@ Este repositório/pasta contém apenas a **API (backend)** dessa aplicação.
      -p 5432:5432 \
      postgres:16-alpine
    ```
-   Use a mesma senha que você definir em `DB_PASSWORD` no `.env`.
-
-4. Iniciar a API em modo desenvolvimento (reinicia automaticamente a cada mudança):
+4. Inicie o servidor:
    ```bash
    npm run dev
    ```
-   Ao subir, a aplicação conecta no banco e sincroniza o schema automaticamente via `sequelize.sync()`.
 
-A API sobe por padrão na porta definida em `EXPRESS_PORT` (`3000`), com as rotas em `/api/*`.
+### 2. Frontend (Interface Web)
 
-## Variáveis de ambiente (`.env`)
+O frontend roda na porta `5173` e se comunica com a API em `http://localhost:3000`.
 
-| Variável       | Descrição                              | Exemplo             |
-|----------------|-----------------------------------------|---------------------|
-| `DB_HOST`      | Host do PostgreSQL                      | `localhost`          |
-| `DB_PORT`      | Porta do PostgreSQL                     | `5432`               |
-| `DB_NAME`      | Nome do banco de dados                  | `medcontrol`         |
-| `DB_USER`      | Usuário do banco de dados                | `medcontrol_app`     |
-| `DB_PASSWORD`  | Senha do banco de dados                  | `troque_esta_senha`  |
-| `EXPRESS_PORT` | Porta em que a API Express é exposta     | `3000`               |
+**Passo a passo**:
+1. Entre na pasta do frontend:
+   ```bash
+   cd front-end
+   ```
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
 
-## Estrutura de pastas
-
-```
-src/
-  index.js            ponto de entrada: conecta no banco, sincroniza models e monta as rotas /api/*
-  controller/          camada de rotas/HTTP (recebe requisições, chama os services)
-  service/              regras de negócio
-  model/                 models Sequelize (entidades do banco)
-  database/
-    database.js         instância única do Sequelize, configurada a partir do .env
-    scripts/              scripts .sql de manutenção manual do banco (veja abaixo)
-```
-
-Fluxo de uma requisição: `controller` → `service` → `model`.
-
-## Banco de dados
-
-O schema **não** usa migrations formais — é gerenciado por `sequelize.sync()` no boot da aplicação, que cria tabelas e colunas novas automaticamente. Colunas removidas de um model não são apagadas do banco existente (ficam órfãs); ajustes desse tipo são feitos manualmente via scripts `.sql` em `src/database/scripts/` — veja `src/database/scripts/README.md` para detalhes.
-
-## Scripts npm
-
-| Script        | Comando                        | Descrição                                  |
-|---------------|----------------------------------|----------------------------------------------|
-| `npm run dev` | `node --watch src/index.js`     | Sobe a API em modo desenvolvimento com reload automático |
-| `npm test`    | —                                 | Ainda não implementado (placeholder)         |
+A aplicação estará disponível em `http://localhost:5173`.
