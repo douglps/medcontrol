@@ -8,7 +8,9 @@ const isSyncMode = process.env.SYNC_MODE === 'true';
 const dbUser = isSyncMode ? process.env.MIGRATOR_DB_USER : process.env.APP_DB_USER;
 const dbPassword = isSyncMode ? process.env.MIGRATOR_DB_PASSWORD : process.env.APP_DB_PASSWORD;
 
-console.log("DB DEBUG:", { isSyncMode, dbUser, dbPassword });
+// Melhoria docs/melhorias-integracao-back-front.md, Sequência F: havia um
+// console.log aqui que imprimia dbPassword em texto plano a cada boot do
+// servidor — removido. Nunca logar credenciais, nem em debug.
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,

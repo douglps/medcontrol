@@ -2,6 +2,7 @@
 // checklistService e traduz erros de validação em respostas 400.
 import { Router } from "express";
 import * as checklistService from "../service/checklistService.js";
+import { tratarErro } from "../utils/tratarErro.js";
 
 const rotas = Router();
 
@@ -12,8 +13,7 @@ rotas.get("/checklist", async (req, res) => {
         let retorno = await checklistService.buscarChecklist(pacienteId, data);
         res.json(retorno);
     } catch (erro) {
-        res.status(400);
-        res.json({ mensagem: erro.message });
+        tratarErro(res, erro);
     }
 });
 
@@ -28,8 +28,7 @@ rotas.patch("/doselogs/:id", async (req, res) => {
         );
         res.json(doseLog);
     } catch (erro) {
-        res.status(400);
-        res.json({ mensagem: erro.message });
+        tratarErro(res, erro);
     }
 });
 

@@ -1,13 +1,20 @@
 // Camada HTTP para o CRUD de Medicamentos e reposição de estoque.
 import { Router } from "express";
 import * as medicationService from "../service/medicamentoService.js";
+import { tratarErro } from "../utils/tratarErro.js";
 
 const rotas = Router();
 
+// Melhoria docs/melhorias-integracao-back-front.md, Sequência F: rota não
+// tinha try/catch — uma falha no service virava erro cru sem JSON.
 rotas.get("/pacientes/:id/medicamentos", async (req, res) => {
-    let patientId = req.params.id;
-    let retorno = await medicationService.listarMedicamentosDoPaciente(patientId);
-    res.json(retorno);
+    try {
+        let patientId = req.params.id;
+        let retorno = await medicationService.listarMedicamentosDoPaciente(patientId);
+        res.json(retorno);
+    } catch (erro) {
+        tratarErro(res, erro);
+    }
 });
 
 rotas.post("/pacientes/:id/medicamentos", async (req, res) => {
@@ -25,8 +32,7 @@ rotas.post("/pacientes/:id/medicamentos", async (req, res) => {
         res.status(200);
         res.json(medicamentoGerado);
     } catch (erro) {
-        res.status(400);
-        res.json({ mensagem: erro.message });
+        tratarErro(res, erro);
     }
 });
 
@@ -44,8 +50,7 @@ rotas.put("/medicamentos/:id", async (req, res) => {
         );
         res.json(medicamento);
     } catch (erro) {
-        res.status(400);
-        res.json({ mensagem: erro.message });
+        tratarErro(res, erro);
     }
 });
 
@@ -55,8 +60,7 @@ rotas.delete("/medicamentos/:id", async (req, res) => {
         await medicationService.apagarMedicamento(id);
         res.sendStatus(204);
     } catch (erro) {
-        res.status(400);
-        res.json({ mensagem: erro.message });
+        tratarErro(res, erro);
     }
 });
 
@@ -67,8 +71,7 @@ rotas.patch("/medicamentos/:id/estoque", async (req, res) => {
         let medicamento = await medicationService.alterarEstoque(id, quantidade);
         res.json(medicamento);
     } catch (erro) {
-        res.status(400);
-        res.json({ mensagem: erro.message });
+        tratarErro(res, erro);
     }
 });
 

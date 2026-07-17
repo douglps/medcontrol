@@ -1,0 +1,25 @@
+# Dependências (reprodutíveis via package-lock.json)
+node_modules/
+
+# Segredos e configuração local — nunca versionar
+.env
+.env.*
+!.env.example
+
+# Build/artefatos
+dist/
+dist-ssr/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Pastas ignoradas por completo a pedido do projeto
+.claude/
+/docs/
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db
+.vscode/*.local
+.idea/

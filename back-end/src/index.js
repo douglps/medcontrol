@@ -21,7 +21,11 @@ async function inicializarServidor() {
     // para respeitar o Princípio do Menor Privilégio (a aplicação roda com permissões DML apenas).
 
     const app = express();
-    app.use(cors());
+    // Melhoria docs/melhorias-integracao-back-front.md, Sequência A: CORS
+    // estava totalmente aberto (qualquer origem); restrito à origem do
+    // frontend local. Ajustar/adicionar origens aqui se o frontend passar
+    // a rodar em outro host (ex: deploy).
+    app.use(cors({ origin: "http://localhost:5173" }));
     app.use(express.json());
     // pacienteController já é montado com seu próprio prefixo porque suas
     // rotas são todas "/", "/:id"; os demais controllers definem o caminho

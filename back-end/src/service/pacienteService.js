@@ -12,6 +12,16 @@ export async function listarPacientes() {
     return pacientes;
 }
 
+// Melhoria docs/melhorias-integracao-back-front.md, Sequência B: função
+// nova, usada pela rota GET /api/pacientes/:id que faltava.
+export async function buscarPacientePorId(id) {
+    let paciente = await Patient.findByPk(id);
+    if (!paciente) {
+        throw new Error("Paciente não encontrado");
+    }
+    return paciente;
+}
+
 // valida R9
 function validarNome(nome) {
     if (!nome || typeof (nome) != "string" || nome.length == 0 || nome.length > 100) {

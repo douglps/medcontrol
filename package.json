@@ -1,0 +1,14 @@
+{
+  "name": "medcontrol-grupo",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Orquestração local do MedControl: banco (Docker), backend e frontend",
+  "scripts": {
+    "lab": "node scripts/lab.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "kill-port": "^2.0.1"
+  }
+}
