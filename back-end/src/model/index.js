@@ -6,6 +6,7 @@ import Patient from "./Paciente.js";
 import Medication from "./Medicamento.js";
 import Schedule from "./Horario.js";
 import DoseLog from "./RegistroDose.js";
+import User from "./Usuario.js";
 
 // Um Paciente tem vários Medicamentos (1:N).
 Patient.hasMany(Medication, { foreignKey: "patientId" });
@@ -20,5 +21,6 @@ Schedule.belongsTo(Medication, { foreignKey: "medicationId" });
 Schedule.hasMany(DoseLog, { foreignKey: "scheduleId" });
 DoseLog.belongsTo(Schedule, { foreignKey: "scheduleId" });
 
-// Cadeia completa: Paciente -> Medicamento -> Horario -> RegistroDose
-export { Patient, Medication, Schedule, DoseLog };
+// Cadeia completa: Paciente -> Medicamento -> Horario -> RegistroDose, e User
+export { Patient, Medication, Schedule, DoseLog, User };
+

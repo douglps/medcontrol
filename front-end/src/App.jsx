@@ -8,30 +8,35 @@ import PatientDetail from './pages/PatientDetail';
 import Medications from './pages/Medications';
 import History from './pages/History';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Rota de Login */}
-        <Route path="/login" element={<Login />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Rota Pública de Login */}
+          <Route path="/login" element={<Login />} />
 
-        {/* Kanban é uma tela standalone (tema/header próprios, sem Sidebar) */}
-        <Route path="/kanban" element={<Kanban />} />
+          {/* Rotas Protegidas (Exigem Autenticação) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/kanban" element={<Kanban />} />
 
-        {/* Páginas internas, com Sidebar (Layout) — paths alinhados com
-            components/Sidebar.jsx e com os navigate() de cada página */}
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/patients" element={<Patients />} />
-          <Route path="/patients/:id" element={<PatientDetail />} />
-          <Route path="/medications" element={<Medications />} />
-          <Route path="/history" element={<History />} />
-        </Route>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/patients" element={<Patients />} />
+              <Route path="/patients/:id" element={<PatientDetail />} />
+              <Route path="/medications" element={<Medications />} />
+              <Route path="/history" element={<History />} />
+            </Route>
+          </Route>
 
-        {/* Qualquer rota desconhecida redireciona para o login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Qualquer rota desconhecida redireciona para o login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
+
