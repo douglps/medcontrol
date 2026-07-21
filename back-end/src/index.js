@@ -9,6 +9,7 @@ import medicationController from "./controller/medicamentoController.js";
 import scheduleController from "./controller/horarioController.js";
 import checklistController from "./controller/checklistController.js";
 import historyController from "./controller/historicoController.js";
+import authController from "./controller/authController.js";
 import cors from "cors";
 import "dotenv/config";
 
@@ -30,6 +31,7 @@ async function inicializarServidor() {
     // pacienteController já é montado com seu próprio prefixo porque suas
     // rotas são todas "/", "/:id"; os demais controllers definem o caminho
     // completo (ex: "/medicamentos/:id") e por isso entram direto em "/api".
+    app.use("/api/auth", authController);
     app.use("/api/pacientes", patientController);
     app.use("/api", medicationController);
     app.use("/api", scheduleController);

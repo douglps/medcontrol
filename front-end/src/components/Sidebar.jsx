@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CheckSquare, Pill, Clock, Users } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Pill, Clock, Users, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
+  const { user, logout } = useAuth();
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Kanban', path: '/kanban', icon: CheckSquare },
@@ -36,16 +38,23 @@ const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
-            M
+      <div className="p-4 border-t border-gray-200 flex items-center justify-between">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
+            {user?.nome ? user.nome.charAt(0).toUpperCase() : 'U'}
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-900">Médico Dr(a).</p>
-            <p className="text-xs text-gray-500">CRM 12345</p>
+          <div className="truncate">
+            <p className="text-sm font-medium text-gray-900 truncate">{user?.nome || 'Usuário'}</p>
+            <p className="text-xs text-gray-500 truncate">{user?.cargo || 'Farmacêutico'}</p>
           </div>
         </div>
+        <button
+          onClick={logout}
+          title="Sair da conta"
+          className="text-gray-500 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+        >
+          <LogOut size={18} />
+        </button>
       </div>
     </aside>
   );

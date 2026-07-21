@@ -1,11 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Plus, Calendar, Pill, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Kanban() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
+    logout();
     navigate('/login');
   };
 
@@ -57,8 +60,8 @@ export default function Kanban() {
         
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex flex-col items-end">
-            <span className="text-sm font-medium text-white">Farmacêutico Chefe</span>
-            <span className="text-xs text-slate-400">admin@ifrs.edu.br</span>
+            <span className="text-sm font-medium text-white">{user?.nome || 'Farmacêutico Chefe'}</span>
+            <span className="text-xs text-slate-400">{user?.email || 'admin@ifrs.edu.br'}</span>
           </div>
           <button
             onClick={handleLogout}

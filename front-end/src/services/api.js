@@ -1,37 +1,31 @@
 import axios from 'axios';
 
-// Criação da instância do Axios com configurações base
 const api = axios.create({
-  baseURL: 'https://api.exemplo.com', // Substitua pela URL do seu backend do IFRS
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
 });
 
-// Interceptor para injetar token de autenticação em todas as requisições
+// Interceptor de requisição: injeta o token Bearer salvo no localStorage
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('medcontrol_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Interceptor para tratamento global de erros (ex: token expirado / 401 Unauthorized)
+// Interceptor de resposta: redireciona para login se 401 for retornado
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Se receber um erro 401 (Não autorizado), limpa o token e redireciona ao login
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem('medcontrol_token');
+      localStorage.removeItem('medcontrol_user');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
