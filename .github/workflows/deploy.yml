@@ -1,0 +1,42 @@
+name: build-and-push
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/gabrielfcoelh83/team3-medcontrol-backend
+  FRONTEND_IMAGE: ghcr.io/gabrielfcoelh83/team3-medcontrol-frontend
+  PUBLIC_API_URL: https://team3.class-devops-ifrs-lucca.dedyn.io:44303/api
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: back-end
+          push: true
+          tags: ${{ env.BACKEND_IMAGE }}:latest
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: front-end
+          push: true
+          build-args: |
+            VITE_API_URL=${{ env.PUBLIC_API_URL }}
+          tags: ${{ env.FRONTEND_IMAGE }}:latest

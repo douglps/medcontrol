@@ -26,7 +26,7 @@ async function inicializarServidor() {
     // estava totalmente aberto (qualquer origem); restrito à origem do
     // frontend local. Ajustar/adicionar origens aqui se o frontend passar
     // a rodar em outro host (ex: deploy).
-    app.use(cors({ origin: "http://localhost:5173" }));
+    app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173" }));
     app.use(express.json());
     // pacienteController já é montado com seu próprio prefixo porque suas
     // rotas são todas "/", "/:id"; os demais controllers definem o caminho
